@@ -1,0 +1,73 @@
+version: 2
+updates:
+  # Python: uv workspace at repo root, per-package pyproject.toml discovered.
+  # The `dependabot-regen` workflow re-runs `scripts/gen_requirements.py`
+  # on every uv-update PR so per-service `requirements.txt` files stay
+  # in sync automatically.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      timezone: "Europe/Berlin"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "chore"
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: "auto"
+    versioning-strategy: "auto"
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Rust: single-crate workspace at repo root.
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      timezone: "Europe/Berlin"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "chore"
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    rebase-strategy: "auto"
+    versioning-strategy: "auto"
+    groups:
+      rust-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      timezone: "Europe/Berlin"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "chore"
+      - "dependencies"
+    commit-message:
+      prefix: "chore(actions)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
