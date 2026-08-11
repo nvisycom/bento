@@ -4,12 +4,12 @@ name: Dependabot Regen
 # dependency descriptors (`pyproject.toml`, `uv.lock`). Regenerates
 # the per-service `requirements.txt` files via
 # `scripts/gen_requirements.py` and commits the diff back onto the
-# same PR branch, so Inference Build's `gen_requirements.py --check` step
+# same PR branch, so Build's `gen_requirements.py --check` step
 # passes without a manual follow-up.
 #
 # **Why not GITHUB_TOKEN**: a push signed by the built-in workflow
-# token does not trigger downstream workflows on the same PR — Py
-# Build would stay red even after the fix. We push with a PAT
+# token does not trigger downstream workflows on the same PR — Build
+# would stay red even after the fix. We push with a PAT
 # (`DEPENDABOT_REGEN_PAT`, scoped repo:contents write) so downstream
 # workflows chain normally.
 #

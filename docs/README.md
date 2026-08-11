@@ -11,14 +11,14 @@ Reference documentation for the Nvisy inference services.
 ## Wire contract
 
 The contract is defined as pydantic types in
-[`nvisy-core`](../packages/nvisy-core) and is task-named (OCR, vision-language
+[`elide-bento-core`](../packages/elide-bento-core) and is task-named (OCR, vision-language
 OCR, NER), independent of the engine that implements it:
 
 | Module | Purpose |
 | --- | --- |
-| [`nvisy_core.ocr.v1`](../packages/nvisy-core/src/nvisy_core/ocr/v1.py) | OCR request/response — `Page → Block → Line → Word` with word-level geometry. |
-| [`nvisy_core.ocrvl.v1`](../packages/nvisy-core/src/nvisy_core/ocrvl/v1.py) | Vision-language OCR request/response — block-level regions with text, layout kind, bbox, and reading order. |
-| [`nvisy_core.ner.v1`](../packages/nvisy-core/src/nvisy_core/ner/v1) | NER request/response — a schema (entities, classifications, structures) in, model-native results + `modelId` out. |
+| [`elide_bento_core.ocr.v1`](../packages/elide-bento-core/src/elide_bento_core/ocr/v1.py) | OCR request/response — `Page → Block → Line → Word` with word-level geometry. |
+| [`elide_bento_core.ocrvl.v1`](../packages/elide-bento-core/src/elide_bento_core/ocrvl/v1.py) | Vision-language OCR request/response — block-level regions with text, layout kind, bbox, and reading order. |
+| [`elide_bento_core.ner.v1`](../packages/elide-bento-core/src/elide_bento_core/ner/v1) | NER request/response — a schema (entities, classifications, structures) in, model-native results + `modelId` out. |
 
 ### NER is schema-driven, labels are model-native
 
