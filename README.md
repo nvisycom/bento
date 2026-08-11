@@ -16,23 +16,6 @@ crate the runtime engine embeds directly.
 > change without notice between releases. Pin a specific commit if you
 > depend on this in production.
 
-## Workspaces
-
-Python packages ([`packages/`](packages/)) — each ships as a BentoML
-service. Deploy behind the runtime engine's `NerBackend::Bento`,
-`OcrBackend::Bento`, or `SttBackend::Bento`; any service that
-reproduces the wire contract is a drop-in replacement.
-
-- **[elide-bento-core](packages/elide-bento-core/)**: shared wire contracts (Pydantic request/response models) every service and client re-uses
-- **[elide-bento-ner](packages/elide-bento-ner/)**: schema-driven entity extraction via GLiNER
-- **[elide-bento-ocr](packages/elide-bento-ocr/)**: text-layer OCR via docTR
-- **[elide-bento-vl](packages/elide-bento-vl/)**: vision-language OCR via PaddleOCR-VL
-
-Rust crates ([`crates/`](crates/)) — a library only, no long-running
-process.
-
-- **[elide-bento](crates/elide-bento/)**: implements elide's `NerBackend`, `OcrBackend`, `SttBackend` traits by speaking each service's HTTP contract
-
 ## Bring Your Own Inference
 
 The runtime engine consumes each service through its wire contract,
