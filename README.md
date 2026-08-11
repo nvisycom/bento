@@ -3,12 +3,16 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/nvisycom/bento/build.yml?branch=main&label=build&style=flat-square)](https://github.com/nvisycom/bento/actions/workflows/build.yml)
 [![Security](https://img.shields.io/github/actions/workflow/status/nvisycom/bento/security.yml?branch=main&label=security&style=flat-square)](https://github.com/nvisycom/bento/actions/workflows/security.yml)
 
-BentoML inference services for [Nvisy Runtime](https://github.com/nvisycom/runtime).
+BentoML inference services implementing [elide](https://github.com/nvisycom/elide)'s
+recognizer contracts.
 
 A workspace that pairs four BentoML-hosted Python model services with a
-Rust client that speaks their wire contract. The Python side ships as
-Docker containers hosts deploy alongside; the Rust side is a library
-crate the runtime engine embeds directly.
+Rust client that speaks their wire contract. Any elide consumer — the
+[Nvisy Runtime](https://github.com/nvisycom/runtime) engine, other
+elide-embedding hosts — can drop this in as their `NerBackend` /
+`OcrBackend` / `SttBackend` implementation. The Python side ships as
+Docker containers deployed as sidecars; the Rust side is a library
+crate the consumer embeds directly.
 
 > [!WARNING]
 > **Active development: API not stable.** This project is under active
@@ -18,12 +22,12 @@ crate the runtime engine embeds directly.
 
 ## Bring Your Own Inference
 
-The runtime engine consumes each service through its wire contract,
-not the specific model behind it. Any HTTP service that reproduces the
+The Rust client speaks each service through its wire contract, not the
+specific model behind it. Any HTTP service that reproduces the
 `/recognize` (NER, OCR, VL) or `/transcribe` (STT) contract from
-`elide-bento-core` is a drop-in replacement for the shipped Python packages,
-including self-hosted or custom models and weights. Each package
-README documents its wire shape.
+`elide-bento-core` is a drop-in replacement for the shipped Python
+packages, including self-hosted or custom models and weights. Each
+package README documents its wire shape.
 
 ## Quick Start
 
