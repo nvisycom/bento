@@ -1,0 +1,77 @@
+# Configuration for cargo-deny
+# See: https://embarkstudios.github.io/cargo-deny/
+
+[graph]
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-unknown-linux-musl" },
+    { triple = "x86_64-apple-darwin" },
+    { triple = "aarch64-apple-darwin" },
+    { triple = "x86_64-pc-windows-msvc" },
+]
+
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+unmaintained = "workspace"
+yanked = "deny"
+ignore = []
+
+[licenses]
+confidence-threshold = 0.8
+private = { ignore = false, registries = [] }
+unused-allowed-license = "warn"
+
+allow = [
+    "0BSD",
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unlicense",
+    "BSL-1.0",
+    "CC0-1.0",
+    "Zlib",
+]
+
+exceptions = [
+    # libmp3lame Rust bindings used by the MP3 codec for the
+    # decode → mutate → re-encode redaction round-trip. LGPL-3.0
+    # imposes redistribution constraints — see
+    # https://www.gnu.org/licenses/lgpl-3.0.html. Static linking
+    # (the default for `mp3lame-sys`) obliges us to either ship
+    # the LGPL source alongside the binary or provide a means for
+    # end users to relink against a modified libmp3lame.
+    { name = "mp3lame-sys", allow = ["LGPL-3.0"] },
+    { name = "mp3lame-encoder", allow = ["LGPL-3.0"] },
+]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+
+allow = []
+
+deny = [
+    { name = "openssl-sys", version = "*" },
+    { name = "openssl", version = "*" },
+]
+
+skip = []
+skip-tree = []
+# Self-referential dev-dependency for test feature activation is not a real wildcard.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+# elide is consumed straight from the in-house GitHub mirror until its
+# crates publish to crates.io. Scoped to this single repo on purpose.
+allow-git = ["https://github.com/nvisycom/elide"]
