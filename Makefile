@@ -121,17 +121,32 @@ doc-rs: ## Rust: build docs as docs.rs publishes them (nightly).
 	@RUSTDOCFLAGS="--cfg docsrs -D warnings" \
 		cargo +nightly doc --workspace --no-deps --all-features
 
+.PHONY: build-rs
+build-rs: ## Rust: release build.
+	@$(call log,Building release...)
+	@cargo build --release
+
+.PHONY: machete-rs
+machete-rs: ## Rust: detect unused dependencies.
+	@$(call log,Checking for unused dependencies...)
+	@cargo machete
+
 .PHONY: deny-rs
 deny-rs: ## Rust: cargo-deny over advisories, bans, licenses, sources.
 	@$(call log,Running cargo deny...)
 	@cargo deny check all
 
+# One target per `rust-build.yml` job, so a green `ci-rs` means the
+# build workflow will be green too. `deny-rs` lives in `rust-security.yml`,
+# not `rust-build.yml`, so it stays out of `ci-rs` — same split as the
+# Python side, where `pip-audit` is outside `ci`.
 .PHONY: ci-rs
-ci-rs: fmt-rs lint-rs test-rs doc-rs ## Rust: full CI matrix.
+ci-rs: fmt-rs lint-rs test-rs doc-rs build-rs machete-rs ## Rust: full CI matrix.
 	@$(call log,Rust CI passed.)
 
+# Both build workflows plus the Rust security scan.
 .PHONY: ci-all
-ci-all: ci ci-rs ## Python + Rust: everything CI runs.
+ci-all: ci ci-rs deny-rs ## Python + Rust: everything CI runs.
 	@$(call log,All CI passed.)
 
 
