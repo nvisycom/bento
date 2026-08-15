@@ -1,4 +1,4 @@
-# Nvisy Bento
+# elide-bento
 
 [![Build](https://img.shields.io/github/actions/workflow/status/nvisycom/elide-bento/build.yml?branch=main&label=build&style=flat-square)](https://github.com/nvisycom/elide-bento/actions/workflows/build.yml)
 [![Security](https://img.shields.io/github/actions/workflow/status/nvisycom/elide-bento/security.yml?branch=main&label=security&style=flat-square)](https://github.com/nvisycom/elide-bento/actions/workflows/security.yml)
@@ -6,9 +6,10 @@
 BentoML inference services implementing [elide](https://github.com/nvisycom/elide)'s
 recognizer contracts.
 
-A workspace that pairs four BentoML-hosted Python model services with a
-Rust client that speaks their wire contract. Any elide consumer — the
-[Nvisy Runtime](https://github.com/nvisycom/runtime) engine, other
+A workspace that pairs three BentoML-hosted Python model services (plus a
+shared contract library) with a Rust client that speaks their wire
+contract. Any elide consumer — the
+[runtime](https://github.com/nvisycom/runtime) engine, other
 elide-embedding hosts — can drop this in as their `NerBackend` /
 `OcrBackend` / `SttBackend` implementation. The Python side ships as
 Docker containers deployed as sidecars; the Rust side is a library
@@ -29,6 +30,13 @@ specific model behind it. Any HTTP service that reproduces the
 packages, including self-hosted or custom models and weights. Each
 package README documents its wire shape.
 
+> [!NOTE]
+> The Rust client's `stt` feature targets an `elide-bento-stt` service
+> that does not ship from this repository yet. The backend is
+> implemented against the `/transcribe` contract, so any service
+> reproducing it works today; there is just no bundled Python package
+> to run.
+
 ## Quick Start
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
@@ -46,6 +54,12 @@ or build the Docker images:
 make build           # every service
 make build-image     # build + containerize
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the local CI targets,
+and the pull-request process. Notable changes are recorded in the
+[CHANGELOG](CHANGELOG.md).
 
 ## License
 

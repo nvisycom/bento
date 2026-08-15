@@ -1,6 +1,6 @@
 # Documentation
 
-Reference documentation for the Nvisy inference services.
+Reference documentation for the elide-bento inference services.
 
 ## Contents
 
