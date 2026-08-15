@@ -8,7 +8,8 @@ Most changes touch one side or the other, and CI is split to match.
 
 ## Requirements
 
-- Python 3.12+ and [uv](https://docs.astral.sh/uv/) — for the services
+- Python 3.12 and [uv](https://docs.astral.sh/uv/) — for the services
+  (every `pyproject.toml` pins `requires-python = "==3.12.*"`)
 - Rust 1.95+ (pinned in `rust-toolchain.toml`) — for the client crate
 - Rust nightly — for `cargo fmt` and `cargo doc` only (see below)
 
@@ -77,7 +78,7 @@ change under `crates/` runs the Rust workflows. A change to both runs both.
 
 ## Project Structure
 
-```
+```text
 crates/elide-bento/        Rust client for the services below
 packages/elide-bento-core/ Shared request/response contracts
 packages/elide-bento-ner/  Named-entity recognition (GLiNER)
