@@ -17,8 +17,8 @@ license = "Apache-2.0"
 publish = false
 
 authors = ["nvisy <contact@nvisy.com>"]
-repository = "https://github.com/nvisycom/bento"
-homepage = "https://github.com/nvisycom/bento"
+repository = "https://github.com/nvisycom/elide-bento"
+homepage = "https://github.com/nvisycom/elide-bento"
 documentation = "https://docs.rs/elide-bento"
 
 [workspace.dependencies]
