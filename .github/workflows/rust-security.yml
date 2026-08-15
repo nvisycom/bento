@@ -1,0 +1,59 @@
+name: Rust Security
+
+# `cargo-deny` over the Rust dependency graph, mirroring `nvisycom/elide`.
+# `deny.toml` already existed in this repo but nothing ran it; this wires
+# it into CI. Kept separate from `security.yml` (which runs `pip-audit`
+# over the Python packages) so the `paths` filter gates each independently.
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release"
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "deny.toml"
+      - ".github/workflows/rust-security.yml"
+  pull_request:
+    branches:
+      - "main"
+      - "release"
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "deny.toml"
+      - ".github/workflows/rust-security.yml"
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deny:
+    name: Deny
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install cargo-deny
+        run: cargo binstall cargo-deny --no-confirm --no-symlinks
+
+      - name: Run deny
+        run: cargo deny check all

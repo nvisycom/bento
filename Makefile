@@ -1,5 +1,6 @@
-# Makefile for the Nvisy bento workspace (Python BentoML packages).
-# The elide-bento Rust client uses plain cargo commands.
+# Makefile for the elide-bento workspace: Python BentoML packages
+# (`packages/`) and the Rust client crate (`crates/`). Python targets
+# are unsuffixed; Rust targets carry an `-rs` suffix.
 
 # Default to a single recipe shell so a failure inside a piped
 # command (e.g. server panics under `tee`) is reported by make.
@@ -89,6 +90,49 @@ build-image: ## Python: build + containerize all Bentos into local Docker images
 .PHONY: ci
 ci: lint check test ## Python: full CI matrix.
 	@$(call log,Python CI passed.)
+
+
+# ─── Rust ──────────────────────────────────────────────────────
+#
+# Mirrors `.github/workflows/rust-build.yml`. `fmt-rs` and `doc-rs`
+# need nightly: `rustfmt.toml` uses nightly-only options, and the
+# `docsrs` cfg in `lib.rs` enables `feature(doc_cfg)`.
+
+.PHONY: fmt-rs
+fmt-rs: ## Rust: check formatting (nightly).
+	@$(call log,Checking Rust formatting...)
+	@cargo +nightly fmt --all --check
+
+.PHONY: lint-rs
+lint-rs: ## Rust: clippy with warnings denied.
+	@$(call log,Running clippy...)
+	@cargo clippy --workspace -- -D warnings
+	@cargo clippy --workspace --all-features --all-targets -- -D warnings
+
+.PHONY: test-rs
+test-rs: ## Rust: run the test suite.
+	@$(call log,Running Rust tests...)
+	@cargo test --workspace
+	@cargo test --workspace --all-features
+
+.PHONY: doc-rs
+doc-rs: ## Rust: build docs as docs.rs publishes them (nightly).
+	@$(call log,Building Rust docs...)
+	@RUSTDOCFLAGS="--cfg docsrs -D warnings" \
+		cargo +nightly doc --workspace --no-deps --all-features
+
+.PHONY: deny-rs
+deny-rs: ## Rust: cargo-deny over advisories, bans, licenses, sources.
+	@$(call log,Running cargo deny...)
+	@cargo deny check all
+
+.PHONY: ci-rs
+ci-rs: fmt-rs lint-rs test-rs doc-rs ## Rust: full CI matrix.
+	@$(call log,Rust CI passed.)
+
+.PHONY: ci-all
+ci-all: ci ci-rs ## Python + Rust: everything CI runs.
+	@$(call log,All CI passed.)
 
 
 # `help` parses the `## …` doc comment after each target name and
