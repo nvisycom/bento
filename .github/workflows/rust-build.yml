@@ -1,0 +1,205 @@
+name: Rust Build
+
+# Rust CI for the `elide-bento` client crate, mirroring the pipeline in
+# `nvisycom/elide`. Kept in its own workflow (rather than folded into
+# `build.yml`) so the `paths` filter gates the whole thing: a Python-only
+# change never spins up a Rust runner, and vice versa.
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release"
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rustfmt.toml"
+      - "rust-toolchain.toml"
+      - ".github/workflows/rust-build.yml"
+  pull_request:
+    branches:
+      - "main"
+      - "release"
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rustfmt.toml"
+      - "rust-toolchain.toml"
+      - ".github/workflows/rust-build.yml"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.95.0"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Nightly: `rustfmt.toml` sets `group_imports`, `imports_granularity`
+      # and `reorder_impl_items`, which are all nightly-only options.
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo +nightly fmt --all --check
+
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo check
+        run: cargo check --workspace
+
+      - name: Cargo check (all features)
+        run: cargo check --workspace --all-features
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: clippy
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Clippy
+        run: cargo clippy --workspace -- -D warnings
+
+      - name: Clippy (all features)
+        run: cargo clippy --workspace --all-features --all-targets -- -D warnings
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Nightly: the `docsrs` cfg enables `feature(doc_cfg)`, used by the
+      # per-feature `#[cfg_attr(docsrs, doc(cfg(...)))]` gates in `lib.rs`.
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      # Build docs the way docs.rs publishes them: all features and docsrs +nightly
+      - name: Cargo doc
+        run: cargo +nightly doc --workspace --no-deps --all-features
+        env:
+          RUSTDOCFLAGS: "--cfg docsrs -D warnings"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: check
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run tests
+        run: cargo test --workspace
+
+      - name: Run tests (all features)
+        run: cargo test --workspace --all-features
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: check
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release
+        run: cargo build --release
+
+  machete:
+    name: Machete
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@v1.21.1
+
+      - name: Install cargo-machete
+        run: cargo binstall cargo-machete@0.9.2 --no-confirm --no-symlinks
+
+      - name: Run machete
+        run: cargo machete
